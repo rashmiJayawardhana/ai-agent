@@ -1,0 +1,10 @@
+# Secrets — NEVER commit API keys to GitHub
+.env
+
+# Python virtual environment
+venv/
+__pycache__/
+*.pyc
+
+# Output files created by the agent
+research_output.txt
