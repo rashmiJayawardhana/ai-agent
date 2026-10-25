@@ -1,10 +1,18 @@
-# Secrets — NEVER commit API keys to GitHub
+# Secrets - NEVER commit API keys to GitHub
 .env
+.streamlit/secrets.toml
 
 # Python virtual environment
 venv/
+.venv/
 __pycache__/
 *.pyc
 
 # Output files created by the agent
 research_output.txt
+
+# Editor and OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

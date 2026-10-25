@@ -1,7 +1,7 @@
 # Understanding This Project (Beginner Guide)
 
 This is an **AI research agent**. You ask a question, and an AI (Google Gemini)
-answers it — but it can also *use tools* (web search, Wikipedia, save-to-file)
+answers it, but it can also *use tools* (web search, Wikipedia, save-to-file)
 to help itself. Then it returns a neat, structured answer.
 
 ---
@@ -16,15 +16,18 @@ An **agent** is an AI model that has been given **tools** and the ability to
 
 ```
 You ask a question
-      │
-      ▼
-  AI thinks  ──►  "I need to search the web"  ──►  runs the search tool
-      ▲                                                     │
-      └───────────────  reads the result  ◄────────────────┘
-      │
-      ▼
-  AI has enough info  ──►  writes the final structured answer
+      |
+      v
+  AI thinks  -->  "I need to search the web"  -->  runs the search tool
+      ^                                                  |
+      +---------------  reads the result  <--------------+
+      |
+      v
+  AI has enough info  -->  writes the final structured answer
 ```
+
+The important part is that **nothing in the code decides which tool to use**.
+We hand the model a set of tools and a description of each, and it picks.
 
 ---
 
@@ -32,28 +35,41 @@ You ask a question
 
 | File               | What it does |
 |--------------------|--------------|
-| `main.py`          | The main program — builds the AI, the prompt, and the agent, then runs it. |
+| `agent.py`         | The core. Builds the AI, its prompt and tools, and exposes one `research()` function. |
 | `tools.py`         | Defines the 3 tools the AI can use (search, Wikipedia, save-to-file). |
+| `main.py`          | The command line interface. Asks you questions and prints answers. |
+| `app.py`           | The web interface (Streamlit), same agent in a browser. |
 | `.env`             | Stores your secret API key. **Never share or commit this.** |
-| `requirements.txt` | The list of libraries this project needs. |
+| `.env.example`     | A safe template showing which keys are needed. |
+| `requirements.txt` | The list of libraries this project needs, with exact versions. |
 | `.gitignore`       | Tells Git which files to NOT upload (keeps `.env` secret). |
+
+**Why is the agent in its own file?** Because two different interfaces (`main.py`
+and `app.py`) both need it. If the agent logic lived inside `main.py`, the web
+app would need its own copy, and the two would slowly drift apart as you change
+one and forget the other.
 
 ---
 
 ## Key concepts (the words you'll keep seeing)
 
 - **LLM** = Large Language Model (the "brain", here Gemini). It predicts text.
-- **LangChain** = a library that gives every AI provider the same simple interface,
-  and provides the agent/tool machinery.
-- **Prompt** = the instructions you send the AI. A *prompt template* is a reusable
-  prompt with blanks (like `{query}`) you fill in.
-- **Tool** = a function the AI is allowed to call (search, save, etc.).
-- **Agent** = an LLM + tools + the logic to choose tools.
-- **AgentExecutor** = the engine that actually runs the think→tool→think loop.
+- **LangChain** = a library that gives every AI provider the same simple
+  interface, and provides the agent/tool machinery.
+- **Prompt** = the instructions you send the AI. The **system prompt** is the
+  standing instruction set that applies to every question.
+- **Tool** = a function the AI is allowed to call (search, save, etc.). Its
+  description is what the AI reads to decide whether it is relevant.
+- **Agent** = an LLM + tools + the ability to choose among them.
+- **`create_agent`** = the single LangChain 1.x function that wires all of that
+  together. (Older tutorials use `create_tool_calling_agent` and
+  `AgentExecutor`; both were removed in LangChain 1.x.)
 - **Pydantic / BaseModel** = a way to define the exact *shape* of data you want
   (here: topic, summary, sources, tools_used) so your code can rely on it.
-- **Parser** = turns the AI's text reply into that structured shape.
-- **`.env` + `load_dotenv()`** = keeps secrets out of your code; loads them at runtime.
+- **`response_format`** = telling `create_agent` to return that shape. The
+  answer arrives already built and validated, so there is no text to parse.
+- **`.env` + `load_dotenv()`** = keeps secrets out of your code; loads them at
+  runtime.
 
 ---
 
@@ -64,49 +80,38 @@ You ask a question
    ```powershell
    pip install -r requirements.txt
    ```
-3. Put your Google API key in `.env`:
+3. Copy `.env.example` to `.env` and put your Google API key in it:
    ```
    GOOGLE_API_KEY="your-key-here"
    ```
    Get one free at https://aistudio.google.com/apikey
-4. Run it:
+4. Run whichever interface you prefer:
    ```powershell
-   python .\main.py
+   python .\main.py          # terminal
+   streamlit run app.py      # browser
    ```
-5. Type a question when prompted, e.g. *"the history of coffee"*.
+5. Type a question, e.g. *"the history of coffee"*. Type `exit` to quit the
+   terminal version.
 
-You'll see the agent "think" in the terminal (because `verbose=True`), and if it
-chooses the save tool, results land in `research_output.txt`.
+If the agent chooses the save tool, results land in `research_output.txt`.
 
 ---
 
 ## Common errors and what they mean
 
 - **"Could not resolve authentication method" / "no API key"**
-  → Your API key is missing or empty in `.env`.
+  Your API key is missing or empty in `.env`.
 
-- **`404 ... model ... is no longer available`**
-  → The model name in `main.py` is outdated. Update the name in this line:
-  ```python
-  llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", max_retries=2)
-  ```
+- **`503 ... high demand` / "Every model is currently overloaded"**
+  Not a bug in your code. The model's server is temporarily busy, which is
+  common on the free tier. `agent.py` already handles this: it lists several
+  models in `MODELS` and automatically falls back to the next one. If every
+  model is busy at once, wait a minute and try again, or add more model names
+  to the `MODELS` list.
 
-- **`503 ... high demand` / "All models were busy"**
-  → Not a bug in your code — the model's server is temporarily overloaded
-  (common on the free tier). `main.py` already handles this: it lists several
-  models in `MODELS` and automatically falls back to the next one if the first
-  is busy. If you see "All models were busy", every model was overloaded at
-  once — just run the program again in a minute, or add more model names to the
-  `MODELS` list.
-
-- **`ImportError: cannot import name 'create_tool_calling_agent'` (or `'Tool'`)**
-  → You're on LangChain 1.x, where the API changed. This project is already
-  updated for it: it uses `create_agent` (not `create_tool_calling_agent`)
-  and imports `tool`/`Tool` from `langchain_core.tools`.
-
-- **`Could not import ddgs ... pip install -U ddgs`**
-  → The web-search package was renamed. Run `pip install -U ddgs`.
-  To see which model names your key can use:
+- **`404 ... model is no longer available`**
+  Google renamed or retired the model. Update the names in `MODELS` in
+  `agent.py`. To see which models your key can actually use:
   ```python
   import os
   from dotenv import load_dotenv
@@ -117,15 +122,32 @@ chooses the save tool, results land in `research_output.txt`.
       print(m.name, m.supported_actions)
   ```
 
-- **"Error parsing response"**
-  → The AI didn't reply in the exact format we asked for. The code prints the raw
-  reply so you can see what it actually said. Usually re-running fixes it.
+- **`ImportError: cannot import name 'create_tool_calling_agent'` (or `'Tool'`)**
+  You're following a LangChain 0.x tutorial on LangChain 1.x. This project is
+  already updated: it uses `create_agent`, and imports `tool` from
+  `langchain_core.tools`.
+
+- **`Could not import ddgs ... pip install -U ddgs`**
+  The web-search package was renamed from `duckduckgo-search`. Run
+  `pip install -U ddgs`.
+
+- **`JSONDecodeError` from Wikipedia**
+  Wikipedia rate-limited the request (HTTP 429) because the `wikipedia`
+  package's default User-Agent is shared by everyone. `tools.py` fixes this by
+  setting a specific User-Agent.
+
+- **`Warning: there are non-text parts in the response`**
+  Harmless. LangChain is just noting the model sent a tool call alongside text.
 
 ---
 
 ## Things to try next (to learn by tinkering)
 
-- Change the `doc_content_chars_max=100` in `tools.py` to `1000` for richer Wikipedia text.
-- Edit the `"system"` message in `main.py` to change the AI's personality or rules.
-- Add a new field to `ResearchResponse` (e.g. `key_people: list[str]`) and watch the
-  AI start filling it in.
+- Change `doc_content_chars_max=100` in `tools.py` to `1000` for richer
+  Wikipedia text.
+- Edit `SYSTEM_PROMPT` in `agent.py` to change how the agent behaves.
+- Add a field to `ResearchResponse` in `agent.py` (e.g.
+  `key_people: list[str]`) and watch the AI start filling it in.
+- Write your own tool in `tools.py` using the `@tool` decorator, add it to
+  `TOOLS` in `agent.py`, and see whether the agent chooses to use it. The
+  description you write is what makes the agent pick it.

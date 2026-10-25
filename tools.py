@@ -11,7 +11,7 @@
 #
 #  NOTE: This uses LangChain 1.x style. For your OWN function, the easy way to
 #  make a tool is the @tool decorator. Prebuilt tools (search, Wikipedia) are
-#  ALREADY tools, so we just use them directly - no need to wrap them.
+#  ALREADY tools, so just use them directly - no need to wrap them.
 # ============================================================================
 
 # Ready-made tools that the LangChain community already built for us:
