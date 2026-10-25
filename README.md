@@ -9,6 +9,9 @@ Available both as a command line application and as a web app.
 <!-- Replace the line below with your deployed Streamlit URL once it is live -->
 **[Live demo](https://gemini-research-agent.streamlit.app/)** 
 
+<img width="1912" height="960" alt="image" src="https://github.com/user-attachments/assets/af05edb3-776b-4e18-80bf-e5f8a0254f46" />
+
+
 ---
 
 ## What it does
