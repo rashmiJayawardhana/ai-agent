@@ -104,17 +104,52 @@ st.markdown(
       .source-row:last-child { border-bottom: none; }
       .source-index { opacity: 0.45; margin-right: 0.5rem; font-variant-numeric: tabular-nums; }
 
-      .sidebar-heading {
-          font-size: 0.74rem;
+      /* Sidebar. Kept deliberately short: it must fit one screen without
+         scrolling, since a panel of explanatory text goes unread. */
+      .sb-brand {
+          font-size: 1.02rem;
           font-weight: 600;
-          letter-spacing: 0.07em;
-          text-transform: uppercase;
-          opacity: 0.55;
-          margin: 1.4rem 0 0.5rem 0;
+          letter-spacing: -0.011em;
+          margin: 0 0 0.32rem 0;
       }
-      .sidebar-body { font-size: 0.88rem; line-height: 1.6; opacity: 0.85; }
-      .sidebar-item { font-size: 0.88rem; line-height: 1.65; }
-      .sidebar-item strong { font-weight: 600; }
+      .sb-tagline {
+          font-size: 0.855rem;
+          line-height: 1.5;
+          opacity: 0.7;
+          margin: 0 0 1.3rem 0;
+      }
+      .sb-label {
+          font-size: 0.68rem;
+          font-weight: 600;
+          letter-spacing: 0.085em;
+          text-transform: uppercase;
+          opacity: 0.5;
+          margin: 0 0 0.55rem 0;
+      }
+      .sb-cap {
+          display: flex;
+          align-items: baseline;
+          gap: 0.6rem;
+          font-size: 0.875rem;
+          line-height: 1.8;
+      }
+      /* A mid blue stays visible against a white or a near-black panel, and a
+         5px dot carries no text-contrast requirement. */
+      .sb-dot {
+          flex: 0 0 auto;
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: #3B82F6;
+          transform: translateY(-0.18em);
+      }
+      .sb-rule {
+          height: 1px;
+          background: rgba(128, 128, 128, 0.18);
+          margin: 1.3rem 0;
+      }
+      .sb-meta { font-size: 0.8rem; line-height: 1.6; opacity: 0.68; }
+      .sb-link { font-size: 0.82rem; margin-top: 1.3rem; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -173,52 +208,26 @@ def format_source(source: str) -> str:
 # Sidebar
 # ---------------------------------------------------------------------------
 with st.sidebar:
+    # One screen, no scrolling: a short identity line, three capabilities at a
+    # glance, and the stack. Anything longer competes with the page itself.
     st.markdown(
-        '<div class="sidebar-heading" style="margin-top:0">Overview</div>'
-        '<div class="sidebar-body">An autonomous research assistant. Given a '
-        'question, it selects its own information sources, gathers what it '
-        'needs, and returns a structured summary with citations.</div>',
-        unsafe_allow_html=True,
-    )
-
-    st.markdown(
-        '<div class="sidebar-heading">Capabilities</div>'
-        '<div class="sidebar-item">'
-        '<strong>Web search</strong><br>Current events and recent information'
-        '</div>'
-        '<div class="sidebar-item" style="margin-top:0.5rem">'
-        '<strong>Encyclopaedic lookup</strong><br>Established facts, people and places'
-        '</div>'
-        '<div class="sidebar-item" style="margin-top:0.5rem">'
-        '<strong>Structured reporting</strong><br>Schema-validated output, not free text'
-        '</div>',
-        unsafe_allow_html=True,
-    )
-
-    st.markdown(
-        '<div class="sidebar-heading">Method</div>'
-        '<div class="sidebar-body">'
-        'The agent is given a set of tools and decides which to use at runtime. '
-        'No rule in the code maps a question to a source. It may consult '
-        'several, review what it finds, and continue until it can answer.'
-        '</div>',
-        unsafe_allow_html=True,
-    )
-
-    st.markdown(
-        '<div class="sidebar-heading">Reliability</div>'
-        '<div class="sidebar-body">'
-        'Requests fail over automatically across several models, so a single '
-        'overloaded service does not interrupt a session.'
-        '</div>',
-        unsafe_allow_html=True,
-    )
-
-    st.markdown(
-        '<div class="sidebar-heading">Built with</div>'
-        '<div class="sidebar-body">'
-        'Google Gemini &middot; LangChain &middot; Pydantic &middot; Streamlit'
-        '</div>',
+        '<div class="sb-brand">AI Research Agent</div>'
+        '<div class="sb-tagline">Ask a question. The agent decides where to '
+        'look, then answers with its sources.</div>'
+        '<div class="sb-label">What it does</div>'
+        '<div class="sb-cap"><span class="sb-dot"></span>'
+        "<span>Searches the live web</span></div>"
+        '<div class="sb-cap"><span class="sb-dot"></span>'
+        "<span>Looks up reference facts</span></div>"
+        '<div class="sb-cap"><span class="sb-dot"></span>'
+        "<span>Summarises with citations</span></div>"
+        '<div class="sb-rule"></div>'
+        '<div class="sb-label">Built with</div>'
+        '<div class="sb-meta">Google Gemini &middot; LangChain &middot; '
+        "Pydantic &middot; Streamlit</div>"
+        '<div class="sb-link">'
+        '<a href="https://github.com/rashmiJayawardhana/ai-agent" '
+        'target="_blank" rel="noopener noreferrer">View source &rarr;</a></div>',
         unsafe_allow_html=True,
     )
 

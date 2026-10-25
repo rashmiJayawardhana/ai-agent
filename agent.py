@@ -8,7 +8,7 @@ It is deliberately separate from the user interfaces so that both the command
 line app (main.py) and the web app (app.py) share exactly the same logic
 instead of each having their own copy.
 
-HOW AN AGENT WORKS (short version):
+HOW AN AGENT WORKS :
     A plain language model can only turn text into text. An "agent" is a model
     that has been given tools plus permission to decide when to call them. The
     loop is: think -> maybe call a tool -> read the result -> think again ->

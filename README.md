@@ -7,15 +7,7 @@ and returns a validated, structured answer with its sources.
 Available both as a command line application and as a web app.
 
 <!-- Replace the line below with your deployed Streamlit URL once it is live -->
-**[Live demo](#)** &nbsp;·&nbsp; **[How it works](#how-it-works)** &nbsp;·&nbsp; **[Design decisions](#design-decisions)**
-
-<!--
-  TODO: add a demo recording here. This is the highest value addition to the
-  README, since most visitors will not install the project.
-  Record the terminal or the web app, save it as docs/demo.gif, then uncomment:
-
-![Demo](docs/demo.gif)
--->
+**[Live demo](https://gemini-research-agent.streamlit.app/)** 
 
 ---
 
@@ -130,14 +122,6 @@ display it. Adding a third interface would require no change to the agent.
 `response_format` means malformed output fails at the boundary rather than
 halfway through rendering. The alternative, parsing free-form text with string
 operations, breaks the moment a model phrases something differently.
-
-**The web demo asks the visitor for nothing.** An earlier version let visitors
-supply their own API key to bypass the shared quota. It was removed: most people
-opening a demo link do not know what an API key is, and a field asking for one
-reads as the page being broken. The cost of that choice is a shared quota, so
-rate and quota limits are caught and shown as plain, calm messages ("this demo
-has reached its daily limit") rather than as errors, since neither indicates a
-fault the visitor can act on.
 
 **Library-level retries are disabled deliberately.** With `max_retries` left at
 its default, an overloaded model does not report an error; it silently retries
