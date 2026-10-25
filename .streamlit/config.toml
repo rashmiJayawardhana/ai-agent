@@ -1,0 +1,11 @@
+# Only the accent colour is set here, deliberately.
+#
+# Setting `base` would force light or dark and override the visitor's own
+# choice. Leaving it unset means Streamlit follows their preference, and the
+# app's custom styling is written to work on either background.
+#
+# #2563EB holds a 5.1:1 contrast ratio against white, so button labels stay
+# legible in light mode, and it remains bright enough to read as an accent
+# against a dark background.
+[theme]
+primaryColor = "#2563EB"
